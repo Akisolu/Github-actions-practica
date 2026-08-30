@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-import comida as c
+import src.utils.comida as c
 
 # ==========================================
 # 1. CASOS FELICES Y EXTREMOS (Parametrizados)

@@ -1,20 +1,22 @@
 import pytest
 from pydantic import ValidationError
-import main as m
+from src.utils.input import OpcionInput
+
 
 # ==========================================
 # 1. CASOS VÁLIDOS (Límite 1 a 4)
 # ==========================================
 
 @pytest.mark.parametrize("input_val, esperado", [
-    ("1", 1),  # Límite inferior
-    ("2", 2),  # Caso medio
-    ("3", 3),  # Caso medio
-    ("4", 4),  # Límite superior
+    ("1", 1),
+    ("2", 2),
+    ("3", 3),
+    ("4", 4),
 ])
-def test_validar_opcion_valida(input_val, esperado):
-    resultado = m.validar_opcion(input_val)
-    assert resultado == esperado
+def test_opcion_input_valida(input_val, esperado):
+    # Instanciación directa del modelo ubicado en src/utils/input.py
+    validador = OpcionInput(opcion=input_val)
+    assert validador.opcion == esperado
 
 
 # ==========================================
@@ -22,15 +24,15 @@ def test_validar_opcion_valida(input_val, esperado):
 # ==========================================
 
 @pytest.mark.parametrize("input_val", [
-    "abc",    # String no numérico
-    "-1",     # Fuera de rango (menor a 1)
-    "0",      # Fuera de rango (menor a 1)
-    "5",      # Fuera de rango (mayor a 4)
+    "abc",    # Texto no numérico
+    "-1",     # Fuera de rango inferior
+    "0",      # Fuera de rango inferior
+    "5",      # Fuera de rango superior
     "99",     # Fuera de rango
-    "1.5",    # Flotante en string
-    "True",   # Booleano representado como texto en consola
-    "",       # Cadena vacía
+    "1.5",    # Float
+    "True",   # Booleano como string
+    "",       # String vacío
 ])
-def test_validar_opcion_invalida(input_val):
+def test_opcion_input_invalida(input_val):
     with pytest.raises(ValidationError):
-        m.validar_opcion(input_val)
+        OpcionInput(opcion=input_val)
