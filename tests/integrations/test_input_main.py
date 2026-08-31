@@ -13,7 +13,7 @@ import main as m
     ("4", 4),  # Límite superior
 ])
 def test_validar_opcion_valida(input_val, esperado):
-    resultado = m.validar_opcion(input_val)
+    resultado = m.validar_opcion_menu(input_val)
     assert resultado == esperado
 
 
@@ -33,4 +33,4 @@ def test_validar_opcion_valida(input_val, esperado):
 ])
 def test_validar_opcion_invalida(input_val):
     with pytest.raises(ValidationError):
-        m.validar_opcion(input_val)
+        m.validar_opcion_menu(input_val)

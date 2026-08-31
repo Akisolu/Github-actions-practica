@@ -1,1 +1,3 @@
-# Placeholder for the CRUD operations related to "comida" (food) entities.
+def a():
+    pass
+

@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from src.utils.input import OpcionInput
+from src.utils.input_menu import OpcionInput
 
 
 # ==========================================
