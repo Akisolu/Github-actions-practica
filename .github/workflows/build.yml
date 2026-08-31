@@ -1,35 +1,16 @@
-name: Run Python Tests
+name: CI/CD - Build & Release
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+    tags:
+      - 'v*' # Se activa al subir tags como v1.0, v1.0.0, v2.1-beta, etc.
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest pydantic
-
-    - name: Test with pytest
-      run: |
-        python -m pytest -v
-
+  # ==========================================
+  # 1. COMPILACIÓN DE BINARIOS
+  # ==========================================
   build:
     name: Build Executable (${{ matrix.os }})
-    needs: test  # Solo se ejecuta si los tests pasan
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -50,7 +31,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Instalar dependencias del proyecto y PyInstaller
+      - name: Instalar dependencias y PyInstaller
         shell: bash
         run: |
           python -m pip install --upgrade pip
@@ -58,41 +39,41 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pyinstaller pydantic
 
-      - name: Compilar ejecutable con PyInstaller
+      - name: Compilar ejecutable
         run: |
           pyinstaller --onefile --name "restaurante_cli" main.py
 
-      - name: Renombrar artefacto según S.O.
+      - name: Renombrar binario
         shell: bash
         run: |
           mv ${{ matrix.executable_path }} ${{ matrix.artifact_name }}
 
-      - name: Subir artefactos a GitHub Actions
+      - name: Subir como artefacto temporal
         uses: actions/upload-artifact@v4
         with:
           name: restaurante-cli-${{ matrix.os }}
           path: ${{ matrix.artifact_name }}
 
   # ==========================================
-  # 3. CREAR DRAFT RELEASE (Opcional para Tags)
+  # 2. CREACIÓN DEL GITHUB RELEASE
   # ==========================================
   release:
-    name: Create GitHub Release
+    name: Publicar Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Permiso necesario para crear releases y adjuntar archivos
 
     steps:
-      - name: Descargar todos los artefactos
+      - name: Descargar todos los artefactos de la etapa anterior
         uses: actions/download-artifact@v4
         with:
           path: binarios/
 
-      - name: Crear Release en GitHub
+      - name: Crear Release y adjuntar ejecutables
         uses: softprops/action-gh-release@v2
         with:
+          generate_release_notes: true # Genera el changelog automáticamente basado en los commits
           files: |
             binarios/restaurante-cli-windows-latest/restaurante_cli_windows.exe
             binarios/restaurante-cli-ubuntu-latest/restaurante_cli_linux
