@@ -2,3 +2,6 @@
 __pycache__/
 .pytest_cache/
 comidas.json
+restaurante_cli.spec
+dist/
+build
