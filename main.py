@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, ValidationError
 from src.utils.comida import Comida
 from src.utils.input_menu import OpcionInput
 from src.utils.id_comida import IdInput
+import src.crud as crud
 
 def validar_opcion_menu(entrada: str) -> int:
     # Pydantic coerciona el string de input() a int y valida el rango [1, 4]
@@ -46,14 +47,18 @@ def agregar_comida():
 
         try: 
             comida = validar_comida(numero_comida, nombre_comida, precio_comida)
+            crud.crear_comida(comida)
             print(f"\nComida agregada exitosamente: {comida}") # Simulado
             return comida  # Sale de la función y del bucle
-        except ValidationError as e:
+        except (ValidationError, ValueError) as e:
             print("\nDatos inválidos. Por favor, intente de nuevo.")
 
 def ver_comidas():
-    """Función para ver comidas (simulada)."""
-    print("\nMostrando todas las comidas (simulado)...")
+    """Función para ver comidas."""
+    print("\nMostrando todas las comidas...")
+    comidas = crud.obtener_todas()
+    for comida in comidas:
+        print(f"ID: {comida['id']}, Nombre: {comida['nombre']}, Precio: {comida['precio']}")
 
 def eliminar_comida():
     """Función para eliminar comida (simulada)."""
@@ -62,6 +67,7 @@ def eliminar_comida():
 
         try: 
             id_validado = validar_id_comida(id_comida)
+            crud.eliminar_comida(id_validado)
             print(f"\nComida eliminada exitosamente: {id_validado}") # Simulado
             return id_validado # Sale de la funcion y del bucle
         except ValidationError as e:
